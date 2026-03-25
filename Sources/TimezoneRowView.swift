@@ -6,6 +6,7 @@ struct TimezoneRowView: View {
     let localTimeZone: TimeZone
     @Binding var hourOffset: Double
     var isHighlighted: Bool = false
+    @State private var colonVisible = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -14,11 +15,6 @@ struct TimezoneRowView: View {
                     HStack(spacing: 6) {
                         Text(timezone.label)
                             .font(.system(size: 15, weight: isHighlighted ? .bold : .medium))
-                        if isHighlighted {
-                            Text("(You)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
                     }
                     HStack(spacing: 4) {
                         Text(abbreviation)
@@ -41,16 +37,32 @@ struct TimezoneRowView: View {
                     }
                 }
                 Spacer()
-                Text(formattedTime)
-                    .font(.system(size: 20, weight: isHighlighted ? .bold : .medium, design: .rounded))
-                    .monospacedDigit()
+                HStack(spacing: 0) {
+                    Text(timeHour)
+                        .font(.system(size: 24, weight: isHighlighted ? .bold : .medium, design: .rounded))
+                        .monospacedDigit()
+                    Text(":")
+                        .font(.system(size: 24, weight: isHighlighted ? .bold : .medium, design: .rounded))
+                        .monospacedDigit()
+                        .opacity(colonVisible ? 1 : 0.15)
+                        .offset(y: -1.5)
+                    Text(timeMinuteAndPeriod)
+                        .font(.system(size: 24, weight: isHighlighted ? .bold : .medium, design: .rounded))
+                        .monospacedDigit()
+                }
             }
 
             DayNightBar(timeZone: timezone.timeZone, selectedDate: selectedDate, hourOffset: $hourOffset)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
+        .contentShape(Rectangle())
         .background(isHighlighted ? Color.accentColor.opacity(0.1) : Color.clear)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                colonVisible = false
+            }
+        }
     }
 
     private var hourInTimezone: Int {
@@ -62,6 +74,20 @@ struct TimezoneRowView: View {
     private var isDaytime: Bool {
         let hour = hourInTimezone
         return hour >= 6 && hour < 20
+    }
+
+    private var timeHour: String {
+        let fmt = DateFormatter()
+        fmt.dateFormat = "HH"
+        fmt.timeZone = timezone.timeZone
+        return fmt.string(from: selectedDate)
+    }
+
+    private var timeMinuteAndPeriod: String {
+        let fmt = DateFormatter()
+        fmt.dateFormat = "mm"
+        fmt.timeZone = timezone.timeZone
+        return fmt.string(from: selectedDate)
     }
 
     private var formattedTime: String {

@@ -21,7 +21,7 @@ struct DayNightBar: View {
                     let tickH: CGFloat = isMajorMark ? 14 : (isHourMark ? 9 : 5)
                     let tickW: CGFloat = 1.0
                     let isDaytime = hour >= 6 && hour < 18
-                    let tickColor = isDaytime ? Color(white: 0.45) : Color.black
+                    let tickColor = isDaytime ? Color(white: 0.92) : Color.black
 
                     Rectangle()
                         .fill(tickColor)
@@ -60,7 +60,7 @@ struct DayNightBar: View {
                         let currentHour = Double(cal.component(.hour, from: now)) + Double(cal.component(.minute, from: now)) / 60.0
 
                         let diff = targetHour - currentHour
-                        hourOffset = (diff * 4).rounded() / 4
+                        hourOffset = (diff * 60).rounded() / 60 // snap to 1 minute
                     }
             )
         }

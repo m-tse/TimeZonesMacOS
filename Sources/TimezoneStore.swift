@@ -13,6 +13,11 @@ struct WorldTimezone: Identifiable, Codable, Equatable {
 class TimezoneStore: ObservableObject {
     @Published var timezones: [WorldTimezone] = []
     @Published var hourOffset: Double = 0
+    @Published var referenceTimezoneId: String = TimeZone.current.identifier
+
+    var referenceTimeZone: TimeZone {
+        TimeZone(identifier: referenceTimezoneId) ?? .current
+    }
 
     init() {
         if let data = UserDefaults.standard.data(forKey: "worldclock_timezones"),

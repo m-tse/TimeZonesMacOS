@@ -39,7 +39,9 @@ struct ContentView: View {
                 .font(.system(size: 12))
                 .foregroundColor(.red)
             Button("Reset to Now") {
-                withAnimation(.easeOut(duration: 0.3)) { store.hourOffset = 0 }
+                withAnimation(.easeOut(duration: 0.3)) {
+                    store.hourOffset = 0
+                }
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
@@ -54,16 +56,22 @@ struct ContentView: View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(spacing: 0) {
                 ForEach(store.sortedTimezones(for: selectedDate)) { tz in
-                    let isLocal = tz.timeZone.identifier == TimeZone.current.identifier
+                    let isReference = tz.timeZone.identifier == store.referenceTimezoneId
                     TimezoneRowView(
                         timezone: tz,
                         selectedDate: selectedDate,
-                        localTimeZone: TimeZone.current,
+                        localTimeZone: store.referenceTimeZone,
                         hourOffset: $store.hourOffset,
-                        isHighlighted: isLocal
+                        isHighlighted: isReference
                     )
+                    .onTapGesture {
+                        store.referenceTimezoneId = tz.timeZone.identifier
+                    }
                     .contextMenu {
-                        if !isLocal {
+                        Button(isReference ? "Reference timezone" : "Set as reference") {
+                            store.referenceTimezoneId = tz.timeZone.identifier
+                        }
+                        if tz.timeZone.identifier != TimeZone.current.identifier {
                             Button("Remove") { store.remove(tz) }
                         }
                     }
@@ -90,7 +98,8 @@ struct ContentView: View {
             .foregroundColor(.secondary)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.top, 6)
+        .padding(.bottom, 2)
 
         // Resize handle
         ResizeHandle(isDragging: $isDragging) { delta in
