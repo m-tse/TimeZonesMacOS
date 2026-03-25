@@ -5,25 +5,48 @@ struct DayNightBar: View {
     let selectedDate: Date
     @Binding var hourOffset: Double
 
+    private let markerSize: CGFloat = 24
+    private let totalHeight: CGFloat = 24
+
     var body: some View {
         GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                // 24-hour colored bar (48 segments = 30min each)
-                HStack(spacing: 0) {
-                    ForEach(0..<48, id: \.self) { segment in
-                        Rectangle()
-                            .fill(colorForHour(Double(segment) / 2.0))
-                    }
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+            ZStack {
+                // Tick marks - every 15 minutes (96 ticks)
+                ForEach(0..<97, id: \.self) { tick in
+                    let hour = Double(tick) / 4.0
+                    let x = CGFloat(tick) / 96.0 * geo.size.width
+                    let isHourMark = tick % 4 == 0
+                    let isMajorMark = tick % 24 == 0 // 0, 6, 12, 18, 24
 
-                // Selected time marker (red line)
+                    let tickH: CGFloat = isMajorMark ? 14 : (isHourMark ? 9 : 5)
+                    let tickW: CGFloat = 1.0
+                    let isDaytime = hour >= 6 && hour < 18
+                    let tickColor = isDaytime ? Color(white: 0.45) : Color.black
+
+                    Rectangle()
+                        .fill(tickColor)
+                        .frame(width: tickW, height: tickH)
+                        .position(x: x, y: totalHeight / 2)
+                }
+
+                // Draggable marker circle
                 let pos = markerPosition(in: geo.size.width)
-                RoundedRectangle(cornerRadius: 1)
-                    .fill(Color.red)
-                    .frame(width: 2.5, height: geo.size.height)
-                    .offset(x: max(0, min(pos - 1.25, geo.size.width - 2.5)))
+                let clampedX = max(markerSize / 2, min(pos, geo.size.width - markerSize / 2))
+                ZStack {
+                    Circle()
+                        .fill(Color(white: 0.92))
+                        .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                    HStack(spacing: 1) {
+                        Image(systemName: "chevron.left")
+                        Image(systemName: "chevron.right")
+                    }
+                    .font(.system(size: 7, weight: .bold))
+                    .foregroundColor(Color(white: 0.35))
+                }
+                .frame(width: markerSize, height: markerSize)
+                .position(x: clampedX, y: totalHeight / 2)
             }
+            .frame(height: totalHeight)
             .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 0)
@@ -31,39 +54,17 @@ struct DayNightBar: View {
                         let fraction = max(0, min(value.location.x / geo.size.width, 1.0))
                         let targetHour = fraction * 24.0
 
-                        // Current hour in this timezone (without offset)
                         let now = Date()
                         var cal = Calendar.current
                         cal.timeZone = timeZone
                         let currentHour = Double(cal.component(.hour, from: now)) + Double(cal.component(.minute, from: now)) / 60.0
 
-                        // Calculate offset needed
-                        var diff = targetHour - currentHour
-                        // Clamp to slider range
-                        diff = max(-12, min(12, diff))
-                        hourOffset = (diff * 4).rounded() / 4 // snap to 15min
+                        let diff = targetHour - currentHour
+                        hourOffset = (diff * 4).rounded() / 4
                     }
             )
-            .cursor(.resizeLeftRight)
         }
-    }
-
-    private func colorForHour(_ hour: Double) -> Color {
-        // Light grey for day, dark grey for night (matching time.fyi style)
-        // Dawn: 5-7, Day: 7-18, Dusk: 18-21, Night: 21-5
-        let t: Double // 0 = night, 1 = day
-        if hour < 5 || hour >= 21 {
-            t = 0
-        } else if hour < 7 {
-            t = (hour - 5) / 2.0
-        } else if hour < 18 {
-            t = 1
-        } else {
-            t = 1.0 - (hour - 18) / 3.0
-        }
-        // Night: ~0.20 grey, Day: ~0.58 grey
-        let v = 0.20 + 0.38 * t
-        return Color(white: v)
+        .frame(height: totalHeight)
     }
 
     private func markerPosition(in width: CGFloat) -> CGFloat {

@@ -33,63 +33,43 @@ struct ContentView: View {
 
     @ViewBuilder
     var mainView: some View {
-        // Scrollable content: slider + timezone list
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 0) {
-                // Slider
-                HStack(spacing: 8) {
-                    Text("-12h")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                        .frame(width: 28, alignment: .trailing)
-                    Slider(value: $store.hourOffset, in: -12...12, step: 0.25)
-                    Text("+12h")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                        .frame(width: 28, alignment: .leading)
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 10)
-
-                // Offset indicator
-                if store.hourOffset != 0 {
-                    HStack {
-                        Text(offsetLabel)
-                            .font(.caption)
-                            .foregroundColor(.red)
-                        Button("Reset") {
-                            withAnimation(.easeOut(duration: 0.3)) { store.hourOffset = 0 }
-                        }
-                        .buttonStyle(.borderless)
-                        .font(.caption)
-                        .foregroundColor(.accentColor)
-                    }
-                    .padding(.top, 2)
-                }
-
-                Divider()
-                    .padding(.top, 8)
-
-                // Timezone list
-                LazyVStack(spacing: 0) {
-                    ForEach(store.sortedTimezones(for: selectedDate)) { tz in
-                        let isLocal = tz.timeZone.identifier == TimeZone.current.identifier
-                        TimezoneRowView(
-                            timezone: tz,
-                            selectedDate: selectedDate,
-                            localTimeZone: TimeZone.current,
-                            hourOffset: $store.hourOffset,
-                            isHighlighted: isLocal
-                        )
-                        .contextMenu {
-                            if !isLocal {
-                                Button("Remove") { store.remove(tz) }
-                            }
-                        }
-                    }
-                }
-                .padding(.vertical, 4)
+        // Reset button
+        HStack {
+            Text(store.hourOffset != 0 ? offsetLabel : " ")
+                .font(.system(size: 12))
+                .foregroundColor(.red)
+            Button("Reset to Now") {
+                withAnimation(.easeOut(duration: 0.3)) { store.hourOffset = 0 }
             }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .disabled(store.hourOffset == 0)
+            .opacity(store.hourOffset != 0 ? 1 : 0.4)
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
+        .padding(.bottom, 4)
+
+        // Timezone list
+        ScrollView(.vertical, showsIndicators: false) {
+            LazyVStack(spacing: 0) {
+                ForEach(store.sortedTimezones(for: selectedDate)) { tz in
+                    let isLocal = tz.timeZone.identifier == TimeZone.current.identifier
+                    TimezoneRowView(
+                        timezone: tz,
+                        selectedDate: selectedDate,
+                        localTimeZone: TimeZone.current,
+                        hourOffset: $store.hourOffset,
+                        isHighlighted: isLocal
+                    )
+                    .contextMenu {
+                        if !isLocal {
+                            Button("Remove") { store.remove(tz) }
+                        }
+                    }
+                }
+            }
+            .padding(.vertical, 4)
         }
 
         Divider()
@@ -98,7 +78,7 @@ struct ContentView: View {
         HStack {
             Button { showingAdd = true } label: {
                 Label("Add Timezone", systemImage: "plus")
-                    .font(.caption)
+                    .font(.system(size: 12))
             }
             .buttonStyle(.borderless)
             Spacer()
@@ -106,7 +86,7 @@ struct ContentView: View {
                 NSApplication.shared.terminate(nil)
             }
             .buttonStyle(.borderless)
-            .font(.caption)
+            .font(.system(size: 12))
             .foregroundColor(.secondary)
         }
         .padding(.horizontal, 16)

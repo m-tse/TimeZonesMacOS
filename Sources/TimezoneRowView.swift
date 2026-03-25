@@ -9,40 +9,47 @@ struct TimezoneRowView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline) {
+            HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
                         Text(timezone.label)
-                            .font(.system(.body, weight: isHighlighted ? .bold : .medium))
+                            .font(.system(size: 15, weight: isHighlighted ? .bold : .medium))
                         if isHighlighted {
                             Text("(You)")
-                                .font(.caption2)
+                                .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                     }
                     HStack(spacing: 4) {
                         Text(abbreviation)
-                            .font(.caption)
+                            .font(.system(size: 12))
                             .foregroundColor(.secondary)
                         Text("·")
-                            .font(.caption)
+                            .font(.system(size: 12))
                             .foregroundColor(.secondary)
                         Text(formattedDate)
-                            .font(.caption)
+                            .font(.system(size: 12))
                             .foregroundColor(dateColor)
+                        if hourDelta != 0 {
+                            Text("·")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                            Text(hourDeltaLabel)
+                                .font(.system(size: 12))
+                                .foregroundColor(hourDelta > 0 ? Color(red: 0.0, green: 0.55, blue: 0.0) : .red)
+                        }
                     }
                 }
                 Spacer()
                 Text(formattedTime)
-                    .font(.system(.title3, design: .rounded, weight: isHighlighted ? .bold : .medium))
+                    .font(.system(size: 20, weight: isHighlighted ? .bold : .medium, design: .rounded))
                     .monospacedDigit()
             }
 
             DayNightBar(timeZone: timezone.timeZone, selectedDate: selectedDate, hourOffset: $hourOffset)
-                .frame(height: 14)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.vertical, 10)
         .background(isHighlighted ? Color.accentColor.opacity(0.1) : Color.clear)
     }
 
@@ -102,6 +109,17 @@ struct TimezoneRowView: View {
         let remoteDate = localCal.date(from: remoteComps)!
 
         return localCal.dateComponents([.day], from: localDate, to: remoteDate).day ?? 0
+    }
+
+    private var hourDelta: Int {
+        let localOffset = localTimeZone.secondsFromGMT(for: selectedDate)
+        let remoteOffset = timezone.timeZone.secondsFromGMT(for: selectedDate)
+        return (remoteOffset - localOffset) / 3600
+    }
+
+    private var hourDeltaLabel: String {
+        let d = hourDelta
+        return d > 0 ? "+\(d)h" : "\(d)h"
     }
 
     private var isDifferentDay: Bool {
