@@ -14,7 +14,7 @@ struct TimezoneRowView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
                         Text(timezone.label)
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.system(size: 15, weight: isHighlighted ? .bold : .medium))
                     }
                     HStack(spacing: 4) {
                         Text(abbreviation)
@@ -32,7 +32,7 @@ struct TimezoneRowView: View {
                                 .foregroundColor(.secondary)
                             Text(hourDeltaLabel)
                                 .font(.system(size: 12))
-                                .foregroundColor(hourDelta > 0 ? Color(red: 0.0, green: 0.55, blue: 0.0) : .red)
+                                .foregroundColor(hourDelta > 0 ? Color(red: 0.0, green: 0.47, blue: 0.0) : Color(red: 0.78, green: 0.0, blue: 0.0))
                         }
                     }
                 }
@@ -117,8 +117,8 @@ struct TimezoneRowView: View {
 
     private var dateColor: Color {
         let diff = dayOffset
-        if diff < 0 { return .red }
-        if diff > 0 { return Color(red: 0.0, green: 0.55, blue: 0.0) }
+        if diff < 0 { return Color(red: 0.78, green: 0.0, blue: 0.0) }
+        if diff > 0 { return Color(red: 0.0, green: 0.47, blue: 0.0) }
         return .secondary
     }
 
