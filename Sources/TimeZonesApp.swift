@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct WorldClockApp: App {
+struct TimeZonesApp: App {
     @StateObject private var store = TimezoneStore()
 
     var body: some Scene {

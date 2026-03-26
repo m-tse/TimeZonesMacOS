@@ -5,7 +5,7 @@ struct ContentView: View {
     @State private var now = Date()
     @State private var showingAdd = false
     @State private var panelHeight: CGFloat = {
-        let saved = UserDefaults.standard.double(forKey: "worldclock_panelHeight")
+        let saved = UserDefaults.standard.double(forKey: "timezones_panelHeight")
         return CGFloat(saved > 0 ? saved : 500).clamped(min: 300, max: 900)
     }()
     @State private var isDragging = false
@@ -234,7 +234,7 @@ struct ContentView: View {
         ResizeHandle(isDragging: $isDragging) { delta in
             let newHeight = (panelHeight + delta).clamped(min: 300, max: 900)
             panelHeight = newHeight
-            UserDefaults.standard.set(Double(newHeight), forKey: "worldclock_panelHeight")
+            UserDefaults.standard.set(Double(newHeight), forKey: "timezones_panelHeight")
         }
     }
 

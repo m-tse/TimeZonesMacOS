@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>com.improvmx.worldclock</string>
+    <string>com.improvmx.timezones</string>
     <key>CFBundleName</key>
     <string>Time Zones</string>
     <key>CFBundleExecutable</key>
-    <string>WorldClock</string>
+    <string>TimeZones</string>
     <key>CFBundleVersion</key>
     <string>1.0</string>
     <key>CFBundleShortVersionString</key>

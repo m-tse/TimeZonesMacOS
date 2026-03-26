@@ -33,12 +33,12 @@ A lightweight macOS menubar app for viewing multiple timezones at a glance. Insp
 ./build.sh
 ```
 
-This compiles the Swift source files and creates `World Clock.app`.
+This compiles the Swift source files and creates `Time Zones.app`.
 
 ## Run
 
 ```bash
-open 'World Clock.app'
+open 'Time Zones.app'
 ```
 
 A globe icon will appear in your menubar. Click it to open the timezone panel.

@@ -20,7 +20,7 @@ class TimezoneStore: ObservableObject {
     }
 
     init() {
-        if let data = UserDefaults.standard.data(forKey: "worldclock_timezones"),
+        if let data = UserDefaults.standard.data(forKey: "timezones_timezones"),
            let saved = try? JSONDecoder().decode([WorldTimezone].self, from: data) {
             timezones = saved
         } else {
@@ -46,7 +46,7 @@ class TimezoneStore: ObservableObject {
 
     func save() {
         if let data = try? JSONEncoder().encode(timezones) {
-            UserDefaults.standard.set(data, forKey: "worldclock_timezones")
+            UserDefaults.standard.set(data, forKey: "timezones_timezones")
         }
     }
 
