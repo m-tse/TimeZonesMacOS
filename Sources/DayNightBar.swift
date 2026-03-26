@@ -21,7 +21,7 @@ struct DayNightBar: View {
 
                     let tickH: CGFloat = isMajorMark ? 14 : (isHourMark ? 9 : 5)
                     let tickW: CGFloat = 1.0
-                    let isDaytime = hour >= 6 && hour < 18
+                    let isDaytime = hour >= 6 && hour <= 18
                     let tickColor = isDaytime ? Color(white: 0.92) : Color.black
 
                     Rectangle()
