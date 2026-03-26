@@ -54,12 +54,16 @@ struct DayNightBar: View {
                         let fraction = max(0, min(value.location.x / geo.size.width, 1.0))
                         let targetHour = fraction * 24.0
 
-                        let now = Date()
+                        // Get the currently displayed date's start-of-day in this timezone
                         var cal = Calendar.current
                         cal.timeZone = timeZone
-                        let currentHour = Double(cal.component(.hour, from: now)) + Double(cal.component(.minute, from: now)) / 60.0
+                        let dayStart = cal.startOfDay(for: selectedDate)
 
-                        let diff = targetHour - currentHour
+                        // Build target date: same day, but at the dragged hour
+                        let targetDate = dayStart.addingTimeInterval(targetHour * 3600)
+
+                        let now = Date()
+                        let diff = targetDate.timeIntervalSince(now) / 3600.0
                         hourOffset = (diff * 60).rounded() / 60 // snap to 1 minute
                     }
                     .onEnded { value in

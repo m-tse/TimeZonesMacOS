@@ -11,6 +11,8 @@ struct ContentView: View {
     @State private var isDragging = false
     @State private var renamingTimezone: WorldTimezone? = nil
     @State private var renameText = ""
+    @State private var showingDatePicker = false
+    @State private var pickerDate = Date()
 
     let timer = Timer.publish(every: 15, on: .main, in: .common).autoconnect()
 
@@ -23,6 +25,8 @@ struct ContentView: View {
             if showingAdd {
                 AddTimezoneView(isShowing: $showingAdd)
                     .environmentObject(store)
+            } else if showingDatePicker {
+                datePickerView
             } else if let tz = renamingTimezone {
                 renameView(for: tz)
             } else {
@@ -97,6 +101,63 @@ struct ContentView: View {
     }
 
     @ViewBuilder
+    var datePickerView: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Button {
+                    showingDatePicker = false
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.caption)
+                }
+                .buttonStyle(.borderless)
+                Spacer()
+                Text("Jump to Date")
+                    .font(.headline)
+                Spacer()
+                Text("Back  ")
+                    .font(.caption)
+                    .hidden()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+
+            DatePicker("", selection: $pickerDate, displayedComponents: .date)
+                .datePickerStyle(.graphical)
+                .padding(.horizontal, 16)
+                .onChange(of: pickerDate) { newDate in
+                    let now = Date()
+                    let diff = newDate.timeIntervalSince(now) / 3600.0
+                    store.hourOffset = (diff * 60).rounded() / 60
+                }
+
+            HStack {
+                Button("Today") {
+                    store.hourOffset = 0
+                    showingDatePicker = false
+                }
+                .buttonStyle(.borderless)
+                .foregroundColor(.secondary)
+
+                Spacer()
+
+                Button("Done") {
+                    showingDatePicker = false
+                }
+                .buttonStyle(.borderless)
+            }
+            .font(.system(size: 12))
+            .padding(.horizontal, 16)
+            .padding(.bottom, 12)
+
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
     var mainView: some View {
         // Timezone list
         ScrollView(.vertical, showsIndicators: false) {
@@ -108,7 +169,11 @@ struct ContentView: View {
                         selectedDate: selectedDate,
                         localTimeZone: store.referenceTimeZone,
                         hourOffset: $store.hourOffset,
-                        isHighlighted: isReference
+                        isHighlighted: isReference,
+                        onDateTap: {
+                            pickerDate = selectedDate
+                            showingDatePicker = true
+                        }
                     )
                     .onTapGesture {
                         store.referenceTimezoneId = tz.timeZone.identifier

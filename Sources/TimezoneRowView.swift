@@ -6,6 +6,7 @@ struct TimezoneRowView: View {
     let localTimeZone: TimeZone
     @Binding var hourOffset: Double
     var isHighlighted: Bool = false
+    var onDateTap: (() -> Void)? = nil
     @State private var colonVisible = true
 
     var body: some View {
@@ -26,6 +27,10 @@ struct TimezoneRowView: View {
                         Text(formattedDate)
                             .font(.system(size: 12))
                             .foregroundColor(dateColor)
+                            .underline(color: dateColor.opacity(0.5))
+                            .onTapGesture {
+                                onDateTap?()
+                            }
                         if hourDelta != 0 {
                             Text("·")
                                 .font(.system(size: 12))
