@@ -2,7 +2,7 @@ import SwiftUI
 
 struct WorldTimezone: Identifiable, Codable, Equatable {
     let identifier: String
-    let label: String
+    var label: String
     var id: String { identifier }
 
     var timeZone: TimeZone {
@@ -59,6 +59,13 @@ class TimezoneStore: ObservableObject {
     func remove(_ tz: WorldTimezone) {
         timezones.removeAll { $0.identifier == tz.identifier }
         save()
+    }
+
+    func rename(_ tz: WorldTimezone, to newLabel: String) {
+        if let idx = timezones.firstIndex(where: { $0.identifier == tz.identifier }) {
+            timezones[idx].label = newLabel
+            save()
+        }
     }
 
     func move(from source: IndexSet, to destination: Int) {

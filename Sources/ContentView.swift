@@ -9,6 +9,8 @@ struct ContentView: View {
         return CGFloat(saved > 0 ? saved : 500).clamped(min: 300, max: 900)
     }()
     @State private var isDragging = false
+    @State private var renamingTimezone: WorldTimezone? = nil
+    @State private var renameText = ""
 
     let timer = Timer.publish(every: 15, on: .main, in: .common).autoconnect()
 
@@ -21,6 +23,8 @@ struct ContentView: View {
             if showingAdd {
                 AddTimezoneView(isShowing: $showingAdd)
                     .environmentObject(store)
+            } else if let tz = renamingTimezone {
+                renameView(for: tz)
             } else {
                 mainView
             }
@@ -28,6 +32,67 @@ struct ContentView: View {
         .frame(width: 360, height: panelHeight)
         .onReceive(timer) { _ in
             now = Date()
+        }
+    }
+
+    @ViewBuilder
+    func renameView(for tz: WorldTimezone) -> some View {
+        VStack(spacing: 0) {
+            HStack {
+                Button {
+                    renamingTimezone = nil
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.caption)
+                }
+                .buttonStyle(.borderless)
+                Spacer()
+                Text("Rename")
+                    .font(.headline)
+                Spacer()
+                Text("Back  ")
+                    .font(.caption)
+                    .hidden()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+
+            TextField("City name", text: $renameText)
+                .textFieldStyle(.roundedBorder)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+                .onSubmit {
+                    if !renameText.isEmpty {
+                        store.rename(tz, to: renameText)
+                    }
+                    renamingTimezone = nil
+                }
+
+            HStack {
+                Button("Cancel") {
+                    renamingTimezone = nil
+                }
+                .buttonStyle(.borderless)
+                .foregroundColor(.secondary)
+
+                Spacer()
+
+                Button("Save") {
+                    if !renameText.isEmpty {
+                        store.rename(tz, to: renameText)
+                    }
+                    renamingTimezone = nil
+                }
+                .buttonStyle(.borderless)
+            }
+            .font(.system(size: 12))
+            .padding(.horizontal, 16)
+            .padding(.bottom, 12)
+
+            Spacer()
         }
     }
 
@@ -51,6 +116,10 @@ struct ContentView: View {
                     .contextMenu {
                         Button(isReference ? "Reference timezone" : "Set as reference") {
                             store.referenceTimezoneId = tz.timeZone.identifier
+                        }
+                        Button("Rename…") {
+                            renameText = tz.label
+                            renamingTimezone = tz
                         }
                         if tz.timeZone.identifier != TimeZone.current.identifier {
                             Button("Remove") { store.remove(tz) }
