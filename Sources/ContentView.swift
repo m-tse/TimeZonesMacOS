@@ -38,6 +38,7 @@ struct ContentView: View {
             }
         }
         .frame(width: 360, height: panelHeight)
+        .background(Color(nsColor: .windowBackgroundColor).opacity(0.4))
         .onReceive(timer) { _ in
             now = Date()
         }
