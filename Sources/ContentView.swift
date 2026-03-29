@@ -281,7 +281,8 @@ struct ContentView: View {
                 }
             }
             .buttonStyle(.borderless)
-            .font(.system(size: 12))
+            .font(.system(size: 12, weight: store.hourOffset != 0 ? .bold : .regular))
+            .foregroundColor(store.hourOffset != 0 ? .orange : .secondary)
             .disabled(store.hourOffset == 0)
             .opacity(store.hourOffset != 0 ? 1 : 0.4)
 
