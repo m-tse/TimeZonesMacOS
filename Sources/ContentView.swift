@@ -43,6 +43,9 @@ struct ContentView: View {
         .onReceive(timer) { _ in
             now = Date()
         }
+        .onAppear {
+            now = Date()
+        }
     }
 
     @ViewBuilder
