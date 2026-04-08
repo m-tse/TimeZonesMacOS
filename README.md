@@ -39,6 +39,12 @@ brew install --cask timezones
 
 The app is signed and notarized with an Apple Developer ID.
 
+### Update
+
+```bash
+brew update && brew upgrade --cask timezones
+```
+
 ### From source
 
 Requires macOS 13.0+, Apple Silicon (arm64), and Xcode command line tools.
