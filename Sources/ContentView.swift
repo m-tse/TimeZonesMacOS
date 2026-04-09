@@ -179,6 +179,21 @@ struct ContentView: View {
             }
             .padding(.horizontal, 16)
 
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Tips")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(.secondary)
+                Text("\u{2022} Right-click on time zones to remove or rename them")
+                Text("\u{2022} Use \u{2190} \u{2192} arrow keys to move the slider by one minute")
+                Text("\u{2022} Hold Shift + \u{2190} \u{2192} to move by one hour")
+                Text("\u{2022} Double-click the slider to return to the current time")
+                Text("\u{2022} Click the date to open a calendar picker")
+            }
+            .font(.system(size: 11))
+            .foregroundColor(.secondary)
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+
             Spacer()
         }
     }
