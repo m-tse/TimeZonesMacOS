@@ -50,6 +50,14 @@ struct ContentView: View {
                 guard !showingAdd && !showingSettings && !showingDatePicker && renamingTimezone == nil else {
                     return event
                 }
+                let modifiers = event.modifierFlags.intersection([.command, .control, .option])
+                if modifiers.isEmpty,
+                   event.charactersIgnoringModifiers?.lowercased() == "r" {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        store.hourOffset = 0
+                    }
+                    return nil
+                }
                 let step = event.modifierFlags.contains(.shift) ? 1.0 : 1.0 / 60.0
                 switch event.keyCode {
                 case 123: // left arrow
@@ -193,6 +201,7 @@ struct ContentView: View {
                 Text("\u{2022} Use \u{2190} \u{2192} arrow keys to move the slider by one minute")
                 Text("\u{2022} Hold Shift + \u{2190} \u{2192} to move by one hour")
                 Text("\u{2022} Use \u{2191} \u{2193} arrow keys to select the previous or next timezone")
+                Text("\u{2022} Press R to reset the time to now")
                 Text("\u{2022} Double-click the slider to return to the current time")
                 Text("\u{2022} Click the date to open a calendar picker")
             }
@@ -284,7 +293,7 @@ struct ContentView: View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(spacing: 0) {
                 ForEach(store.sortedTimezones(for: selectedDate)) { tz in
-                    let isReference = tz.timeZone.identifier == store.referenceTimezoneId
+                    let isReference = tz.identifier == store.referenceTimezoneId
                     TimezoneRowView(
                         timezone: tz,
                         selectedDate: selectedDate,
@@ -299,11 +308,11 @@ struct ContentView: View {
                         }
                     )
                     .onTapGesture {
-                        store.referenceTimezoneId = tz.timeZone.identifier
+                        store.referenceTimezoneId = tz.identifier
                     }
                     .contextMenu {
                         Button(isReference ? "Reference timezone" : "Set as reference") {
-                            store.referenceTimezoneId = tz.timeZone.identifier
+                            store.referenceTimezoneId = tz.identifier
                         }
                         Button("Rename…") {
                             renameText = tz.label
