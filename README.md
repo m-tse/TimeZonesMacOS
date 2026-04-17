@@ -1,4 +1,4 @@
-# TimeZonesMenuBarApp
+# TimeZonesMacOS
 
 A lightweight macOS menubar app for viewing multiple timezones at a glance. Inspired by [time.fyi/timezones](https://time.fyi/timezones).
 
