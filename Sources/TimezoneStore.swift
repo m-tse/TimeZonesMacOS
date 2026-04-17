@@ -55,6 +55,20 @@ class TimezoneStore: ObservableObject {
     @Published var use24Hour: Bool = UserDefaults.standard.object(forKey: "timezones_use24Hour") as? Bool ?? true {
         didSet { UserDefaults.standard.set(use24Hour, forKey: "timezones_use24Hour") }
     }
+    @Published var referenceHighlightHex: String? = UserDefaults.standard.string(forKey: "timezones_referenceHighlight") {
+        didSet {
+            if let h = referenceHighlightHex {
+                UserDefaults.standard.set(h, forKey: "timezones_referenceHighlight")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "timezones_referenceHighlight")
+            }
+        }
+    }
+
+    var referenceHighlightColor: Color {
+        if let hex = referenceHighlightHex, let c = Color(hex: hex) { return c }
+        return Color.accentColor.opacity(0.1)
+    }
 
     var referenceTimeZone: TimeZone {
         TimeZone(identifier: referenceTimezoneId) ?? .current

@@ -15,6 +15,7 @@ struct ContentView: View {
     @State private var renameText = ""
     @State private var colorPickingTimezone: WorldTimezone? = nil
     @State private var pickerColor: Color = .white
+    @State private var pickingReferenceHighlight = false
     @State private var showingDatePicker = false
     @State private var keyMonitor: Any?
     @State private var pickerDate = Date()
@@ -39,6 +40,8 @@ struct ContentView: View {
                 renameView(for: tz)
             } else if let tz = colorPickingTimezone {
                 colorPickerView(for: tz)
+            } else if pickingReferenceHighlight {
+                referenceHighlightPickerView
             } else {
                 mainView
             }
@@ -51,7 +54,7 @@ struct ContentView: View {
         .onAppear {
             now = Date()
             keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-                guard !showingAdd && !showingSettings && !showingDatePicker && renamingTimezone == nil && colorPickingTimezone == nil else {
+                guard !showingAdd && !showingSettings && !showingDatePicker && renamingTimezone == nil && colorPickingTimezone == nil && !pickingReferenceHighlight else {
                     return event
                 }
                 let modifiers = event.modifierFlags.intersection([.command, .control, .option])
@@ -152,6 +155,63 @@ struct ContentView: View {
 
                 Button("Done") {
                     colorPickingTimezone = nil
+                }
+                .buttonStyle(.borderless)
+            }
+            .font(.system(size: 12))
+            .padding(.horizontal, 16)
+            .padding(.bottom, 12)
+
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
+    var referenceHighlightPickerView: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Button {
+                    pickingReferenceHighlight = false
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.caption)
+                }
+                .buttonStyle(.borderless)
+                Spacer()
+                Text("Reference Highlight")
+                    .font(.headline)
+                Spacer()
+                Text("Back  ")
+                    .font(.caption)
+                    .hidden()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+
+            ColorPicker("Pick a color", selection: $pickerColor, supportsOpacity: true)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+                .onChange(of: pickerColor) { newColor in
+                    if let hex = newColor.toHexString() {
+                        store.referenceHighlightHex = hex
+                    }
+                }
+
+            HStack {
+                Button("Reset to default") {
+                    store.referenceHighlightHex = nil
+                    pickingReferenceHighlight = false
+                }
+                .buttonStyle(.borderless)
+                .foregroundColor(.secondary)
+
+                Spacer()
+
+                Button("Done") {
+                    pickingReferenceHighlight = false
                 }
                 .buttonStyle(.borderless)
             }
@@ -378,6 +438,7 @@ struct ContentView: View {
                         localTimeZone: store.referenceTimeZone,
                         hourOffset: $store.hourOffset,
                         isHighlighted: isReference,
+                        highlightColor: store.referenceHighlightColor,
                         use24Hour: store.use24Hour,
                         onDateTap: {
                             pickerTimeZone = tz.timeZone
@@ -389,8 +450,10 @@ struct ContentView: View {
                         store.referenceTimezoneId = tz.identifier
                     }
                     .contextMenu {
-                        Button(isReference ? "Reference timezone" : "Set as reference") {
-                            store.referenceTimezoneId = tz.identifier
+                        if !isReference {
+                            Button("Set as reference") {
+                                store.referenceTimezoneId = tz.identifier
+                            }
                         }
                         Button("Rename…") {
                             renameText = tz.label
@@ -411,6 +474,26 @@ struct ContentView: View {
                                 Divider()
                                 Button("Clear color") {
                                     store.setBackgroundColor(tz, hex: nil)
+                                }
+                            }
+                        }
+                        if isReference {
+                            Menu("Reference highlight color") {
+                                ForEach(Self.presetColors, id: \.name) { preset in
+                                    Button(preset.name) {
+                                        store.referenceHighlightHex = preset.hex
+                                    }
+                                }
+                                Divider()
+                                Button("Custom…") {
+                                    pickerColor = store.referenceHighlightColor
+                                    pickingReferenceHighlight = true
+                                }
+                                if store.referenceHighlightHex != nil {
+                                    Divider()
+                                    Button("Reset to default") {
+                                        store.referenceHighlightHex = nil
+                                    }
                                 }
                             }
                         }

@@ -6,6 +6,7 @@ struct TimezoneRowView: View {
     let localTimeZone: TimeZone
     @Binding var hourOffset: Double
     var isHighlighted: Bool = false
+    var highlightColor: Color = Color.accentColor.opacity(0.1)
     var use24Hour: Bool = true
     var onDateTap: (() -> Void)? = nil
     @State private var colonVisible = true
@@ -71,7 +72,7 @@ struct TimezoneRowView: View {
                     custom
                 }
                 if isHighlighted {
-                    Color.accentColor.opacity(0.1)
+                    highlightColor
                 }
             }
         )
