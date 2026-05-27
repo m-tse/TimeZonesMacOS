@@ -9,9 +9,41 @@ struct TimeZonesApp: App {
             ContentView()
                 .environmentObject(store)
         } label: {
-            Image(nsImage: makeGlobeAltIcon())
+            MenuBarLabel(store: store)
         }
         .menuBarExtraStyle(.window)
+    }
+}
+
+struct MenuBarLabel: View {
+    @ObservedObject var store: TimezoneStore
+    @State private var now = Date()
+
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        Group {
+            if let tzId = store.menuBarTimezoneId,
+               let tz = TimeZone(identifier: tzId) {
+                Text(menuBarTimeString(for: tz))
+                    .monospacedDigit()
+            } else {
+                Image(nsImage: makeGlobeAltIcon())
+            }
+        }
+        .onReceive(timer) { _ in now = Date() }
+    }
+
+    private func menuBarTimeString(for tz: TimeZone) -> String {
+        let fmt = DateFormatter()
+        fmt.timeZone = tz
+        if store.use24Hour {
+            fmt.dateFormat = "HH:mm"
+        } else {
+            fmt.dateFormat = "h:mm a"
+        }
+        let abbr = tz.abbreviation(for: now) ?? ""
+        return "\(fmt.string(from: now)) \(abbr)"
     }
 
     private func makeGlobeAltIcon() -> NSImage {

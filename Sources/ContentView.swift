@@ -332,6 +332,22 @@ struct ContentView: View {
                     }
                 ))
                 .toggleStyle(.switch)
+
+                HStack {
+                    Text("Menu bar display")
+                    Spacer()
+                    Picker("", selection: Binding(
+                        get: { store.menuBarTimezoneId ?? "" },
+                        set: { store.menuBarTimezoneId = $0.isEmpty ? nil : $0 }
+                    )) {
+                        Text("Globe icon").tag("")
+                        Divider()
+                        ForEach(store.sortedTimezones(for: Date()), id: \.identifier) { tz in
+                            Text(tz.label).tag(tz.identifier)
+                        }
+                    }
+                    .frame(width: 160)
+                }
             }
             .padding(.horizontal, 16)
 

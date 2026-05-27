@@ -55,6 +55,16 @@ class TimezoneStore: ObservableObject {
     @Published var use24Hour: Bool = UserDefaults.standard.object(forKey: "timezones_use24Hour") as? Bool ?? true {
         didSet { UserDefaults.standard.set(use24Hour, forKey: "timezones_use24Hour") }
     }
+    @Published var menuBarTimezoneId: String? = UserDefaults.standard.string(forKey: "timezones_menuBarTimezone") {
+        didSet {
+            if let id = menuBarTimezoneId {
+                UserDefaults.standard.set(id, forKey: "timezones_menuBarTimezone")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "timezones_menuBarTimezone")
+            }
+        }
+    }
+
     @Published var referenceHighlightHex: String? = UserDefaults.standard.string(forKey: "timezones_referenceHighlight") {
         didSet {
             if let h = referenceHighlightHex {
