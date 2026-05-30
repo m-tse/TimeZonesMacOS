@@ -42,8 +42,11 @@ struct MenuBarLabel: View {
         } else {
             fmt.dateFormat = "h:mm a"
         }
-        let abbr = tz.abbreviation(for: now) ?? ""
-        return "\(fmt.string(from: now)) \(abbr)"
+        if store.menuBarShowAbbreviation {
+            let abbr = tz.abbreviation(for: now) ?? ""
+            return "\(fmt.string(from: now)) \(abbr)"
+        }
+        return fmt.string(from: now)
     }
 
     private func makeGlobeAltIcon() -> NSImage {

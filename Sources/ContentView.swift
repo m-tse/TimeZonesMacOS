@@ -348,6 +348,11 @@ struct ContentView: View {
                     }
                     .frame(width: 160)
                 }
+
+                if store.menuBarTimezoneId != nil {
+                    Toggle("Show timezone abbreviation", isOn: $store.menuBarShowAbbreviation)
+                        .toggleStyle(.switch)
+                }
             }
             .padding(.horizontal, 16)
 

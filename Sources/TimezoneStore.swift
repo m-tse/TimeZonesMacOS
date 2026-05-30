@@ -65,6 +65,10 @@ class TimezoneStore: ObservableObject {
         }
     }
 
+    @Published var menuBarShowAbbreviation: Bool = UserDefaults.standard.object(forKey: "timezones_menuBarShowAbbr") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(menuBarShowAbbreviation, forKey: "timezones_menuBarShowAbbr") }
+    }
+
     @Published var referenceHighlightHex: String? = UserDefaults.standard.string(forKey: "timezones_referenceHighlight") {
         didSet {
             if let h = referenceHighlightHex {
