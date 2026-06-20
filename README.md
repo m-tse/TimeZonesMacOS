@@ -65,3 +65,47 @@ A globe icon will appear in your menubar. Click it to open the timezone panel.
 - **Change reference city** — click any city row to highlight it and reorient all deltas
 - **Reset** — click "Reset" to return to the current time
 - **Resize** — drag the handle at the very bottom of the panel
+
+## Releasing
+
+### Prerequisites (one-time setup)
+
+1. Install a **Developer ID Application** certificate via Xcode → Settings → Accounts → Manage Certificates → "+" → "Developer ID Application"
+2. Generate an **app-specific password** at [appleid.apple.com](https://appleid.apple.com) → Sign-In and Security → App-Specific Passwords
+3. Store notarization credentials in the Keychain:
+
+```bash
+xcrun notarytool store-credentials "notarytool" --apple-id <your-apple-id> --team-id <your-team-id>
+```
+
+### Cutting a release
+
+1. Bump the version in `Info.plist` (`CFBundleVersion` and `CFBundleShortVersionString`)
+2. Build, sign, notarize, and staple:
+
+```bash
+./build.sh
+
+codesign --deep --force --options runtime \
+  --sign "Developer ID Application: ImprovMX Incorporated (2TMRXZB6JT)" \
+  Meridian.app
+
+codesign -vvv --deep --strict Meridian.app
+
+ditto -c -k --keepParent Meridian.app Meridian-<version>.zip
+
+xcrun notarytool submit Meridian-<version>.zip \
+  --keychain-profile "notarytool" --wait
+
+xcrun stapler staple Meridian.app
+
+ditto -c -k --keepParent Meridian.app Meridian-<version>.zip
+```
+
+3. Create the GitHub release:
+
+```bash
+gh release create v<version> Meridian-<version>.zip --title "v<version>"
+```
+
+4. Update the Homebrew cask in [m-tse/homebrew-tap](https://github.com/m-tse/homebrew-tap) — set the new version and `sha256` (from `shasum -a 256 Meridian-<version>.zip`)
