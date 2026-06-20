@@ -55,14 +55,16 @@ class TimezoneStore: ObservableObject {
     @Published var use24Hour: Bool = UserDefaults.standard.object(forKey: "timezones_use24Hour") as? Bool ?? true {
         didSet { UserDefaults.standard.set(use24Hour, forKey: "timezones_use24Hour") }
     }
-    @Published var menuBarTimezoneId: String? = UserDefaults.standard.string(forKey: "timezones_menuBarTimezone") {
-        didSet {
-            if let id = menuBarTimezoneId {
-                UserDefaults.standard.set(id, forKey: "timezones_menuBarTimezone")
-            } else {
-                UserDefaults.standard.removeObject(forKey: "timezones_menuBarTimezone")
-            }
-        }
+    @Published var menuBarShowsTime: Bool = UserDefaults.standard.object(forKey: "timezones_menuBarShowsTime") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(menuBarShowsTime, forKey: "timezones_menuBarShowsTime") }
+    }
+
+    @Published var menuBarShowDayOfWeek: Bool = UserDefaults.standard.object(forKey: "timezones_menuBarShowDay") as? Bool ?? false {
+        didSet { UserDefaults.standard.set(menuBarShowDayOfWeek, forKey: "timezones_menuBarShowDay") }
+    }
+
+    @Published var menuBarShowDate: Bool = UserDefaults.standard.object(forKey: "timezones_menuBarShowDate") as? Bool ?? false {
+        didSet { UserDefaults.standard.set(menuBarShowDate, forKey: "timezones_menuBarShowDate") }
     }
 
     @Published var menuBarShowAbbreviation: Bool = UserDefaults.standard.object(forKey: "timezones_menuBarShowAbbr") as? Bool ?? true {

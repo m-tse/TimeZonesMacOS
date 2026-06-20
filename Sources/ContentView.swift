@@ -333,26 +333,32 @@ struct ContentView: View {
                 ))
                 .toggleStyle(.switch)
 
-                HStack {
-                    Text("Menu bar display")
-                    Spacer()
-                    Picker("", selection: Binding(
-                        get: { store.menuBarTimezoneId ?? "" },
-                        set: { store.menuBarTimezoneId = $0.isEmpty ? nil : $0 }
-                    )) {
-                        Text("Globe icon").tag("")
-                        Divider()
-                        ForEach(store.sortedTimezones(for: Date()), id: \.identifier) { tz in
-                            Text(tz.label).tag(tz.identifier)
+                VStack(spacing: 10) {
+                    HStack {
+                        Text("Menu bar display")
+                        Spacer()
+                        Picker("", selection: Binding(
+                            get: { store.menuBarShowsTime },
+                            set: { store.menuBarShowsTime = $0 }
+                        )) {
+                            Text("Globe icon").tag(false)
+                            Text("Time").tag(true)
                         }
+                        .frame(width: 120)
                     }
-                    .frame(width: 160)
-                }
 
-                if store.menuBarTimezoneId != nil {
-                    Toggle("Show timezone abbreviation", isOn: $store.menuBarShowAbbreviation)
-                        .toggleStyle(.switch)
+                    if store.menuBarShowsTime {
+                        Toggle("Show day of week", isOn: $store.menuBarShowDayOfWeek)
+                            .toggleStyle(.switch)
+                        Toggle("Show date", isOn: $store.menuBarShowDate)
+                            .toggleStyle(.switch)
+                        Toggle("Show timezone abbreviation", isOn: $store.menuBarShowAbbreviation)
+                            .toggleStyle(.switch)
+                    }
                 }
+                .padding(10)
+                .background(RoundedRectangle(cornerRadius: 8).fill(.quaternary.opacity(0.5)))
+
             }
             .padding(.horizontal, 16)
 

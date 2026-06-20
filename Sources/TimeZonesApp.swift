@@ -23,9 +23,8 @@ struct MenuBarLabel: View {
 
     var body: some View {
         Group {
-            if let tzId = store.menuBarTimezoneId,
-               let tz = TimeZone(identifier: tzId) {
-                Text(menuBarTimeString(for: tz))
+            if store.menuBarShowsTime {
+                Text(timeString(for: store.referenceTimeZone))
                     .monospacedDigit()
             } else {
                 Image(nsImage: makeGlobeAltIcon())
@@ -34,19 +33,30 @@ struct MenuBarLabel: View {
         .onReceive(timer) { _ in now = Date() }
     }
 
-    private func menuBarTimeString(for tz: TimeZone) -> String {
+    private func timeString(for tz: TimeZone) -> String {
+        var parts: [String] = []
         let fmt = DateFormatter()
         fmt.timeZone = tz
-        if store.use24Hour {
-            fmt.dateFormat = "HH:mm"
-        } else {
-            fmt.dateFormat = "h:mm a"
+
+        if store.menuBarShowDayOfWeek {
+            fmt.dateFormat = "EEE"
+            parts.append(fmt.string(from: now))
         }
+
+        if store.menuBarShowDate {
+            fmt.dateFormat = "MMM d"
+            parts.append(fmt.string(from: now))
+        }
+
+        fmt.dateFormat = store.use24Hour ? "HH:mm" : "h:mm a"
+        parts.append(fmt.string(from: now))
+
         if store.menuBarShowAbbreviation {
             let abbr = tz.abbreviation(for: now) ?? ""
-            return "\(fmt.string(from: now)) \(abbr)"
+            parts.append(abbr)
         }
-        return fmt.string(from: now)
+
+        return parts.joined(separator: "  ")
     }
 
     private func makeGlobeAltIcon() -> NSImage {
