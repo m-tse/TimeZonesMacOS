@@ -36,8 +36,6 @@ struct ContentView: View {
                     .environmentObject(store)
             } else if showingDatePicker {
                 datePickerView
-            } else if let tz = renamingTimezone {
-                renameView(for: tz)
             } else if let tz = colorPickingTimezone {
                 colorPickerView(for: tz)
             } else if pickingReferenceHighlight {
@@ -55,6 +53,11 @@ struct ContentView: View {
             now = Date()
             keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
                 if event.keyCode == 53 { // escape
+                    if renamingTimezone != nil {
+                        // Let the rename field handle escape so it cancels
+                        // (rather than commits) the edit.
+                        return event
+                    }
                     (event.window ?? NSApp.keyWindow)?.orderOut(nil)
                     return nil
                 }
@@ -216,67 +219,6 @@ struct ContentView: View {
 
                 Button("Done") {
                     pickingReferenceHighlight = false
-                }
-                .buttonStyle(.borderless)
-            }
-            .font(.system(size: 12))
-            .padding(.horizontal, 16)
-            .padding(.bottom, 12)
-
-            Spacer()
-        }
-    }
-
-    @ViewBuilder
-    func renameView(for tz: WorldTimezone) -> some View {
-        VStack(spacing: 0) {
-            HStack {
-                Button {
-                    renamingTimezone = nil
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                        Text("Back")
-                    }
-                    .font(.caption)
-                }
-                .buttonStyle(.borderless)
-                Spacer()
-                Text("Rename")
-                    .font(.headline)
-                Spacer()
-                Text("Back  ")
-                    .font(.caption)
-                    .hidden()
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-
-            TextField("City name", text: $renameText)
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
-                .onSubmit {
-                    if !renameText.isEmpty {
-                        store.rename(tz, to: renameText)
-                    }
-                    renamingTimezone = nil
-                }
-
-            HStack {
-                Button("Cancel") {
-                    renamingTimezone = nil
-                }
-                .buttonStyle(.borderless)
-                .foregroundColor(.secondary)
-
-                Spacer()
-
-                Button("Save") {
-                    if !renameText.isEmpty {
-                        store.rename(tz, to: renameText)
-                    }
-                    renamingTimezone = nil
                 }
                 .buttonStyle(.borderless)
             }
@@ -477,6 +419,17 @@ struct ContentView: View {
                             pickerTimeZone = tz.timeZone
                             pickerDate = selectedDate
                             showingDatePicker = true
+                        },
+                        isRenaming: renamingTimezone?.identifier == tz.identifier,
+                        renameText: $renameText,
+                        onRenameCommit: {
+                            if !renameText.isEmpty {
+                                store.rename(tz, to: renameText)
+                            }
+                            renamingTimezone = nil
+                        },
+                        onRenameCancel: {
+                            renamingTimezone = nil
                         }
                     )
                     .onTapGesture {

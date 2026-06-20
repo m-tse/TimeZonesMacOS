@@ -9,6 +9,10 @@ struct TimezoneRowView: View {
     var highlightColor: Color = Color.accentColor.opacity(0.1)
     var use24Hour: Bool = true
     var onDateTap: (() -> Void)? = nil
+    var isRenaming: Bool = false
+    @Binding var renameText: String
+    var onRenameCommit: (() -> Void)? = nil
+    var onRenameCancel: (() -> Void)? = nil
     @State private var colonVisible = true
 
     var body: some View {
@@ -16,8 +20,19 @@ struct TimezoneRowView: View {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
-                        Text(timezone.label)
-                            .font(.system(size: 15, weight: isHighlighted ? .bold : .medium))
+                        if isRenaming {
+                            RenameTextField(
+                                text: $renameText,
+                                isBold: isHighlighted,
+                                onCommit: { onRenameCommit?() },
+                                onCancel: { onRenameCancel?() }
+                            )
+                            .frame(minWidth: 140, maxWidth: 200, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                        } else {
+                            Text(timezone.label)
+                                .font(.system(size: 15, weight: isHighlighted ? .bold : .medium))
+                        }
                     }
                     HStack(spacing: 8) {
                         Text(abbreviation)
