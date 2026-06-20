@@ -4,7 +4,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-echo "Building Time Zones..."
+echo "Building Meridian..."
 
 SDK_PATH=$(xcrun --show-sdk-path)
 
@@ -13,16 +13,16 @@ swiftc \
     -sdk "$SDK_PATH" \
     -parse-as-library \
     -O \
-    -o TimeZones \
+    -o Meridian \
     Sources/*.swift
 
 echo "Creating app bundle..."
-rm -rf "Time Zones.app"
-mkdir -p "Time Zones.app/Contents/MacOS"
-mkdir -p "Time Zones.app/Contents/Resources"
-cp TimeZones "Time Zones.app/Contents/MacOS/"
-cp Info.plist "Time Zones.app/Contents/"
-cp Sources/AppIcon.png "Time Zones.app/Contents/Resources/"
+rm -rf "Meridian.app"
+mkdir -p "Meridian.app/Contents/MacOS"
+mkdir -p "Meridian.app/Contents/Resources"
+cp Meridian "Meridian.app/Contents/MacOS/"
+cp Info.plist "Meridian.app/Contents/"
+cp Sources/AppIcon.png "Meridian.app/Contents/Resources/"
 
 # Generate .icns from AppIcon.png
 ICONSET_DIR=$(mktemp -d)/AppIcon.iconset
@@ -37,10 +37,10 @@ sips -z 256 256   Sources/AppIcon.png --out "$ICONSET_DIR/icon_256x256.png" > /d
 sips -z 512 512   Sources/AppIcon.png --out "$ICONSET_DIR/icon_256x256@2x.png" > /dev/null 2>&1
 sips -z 512 512   Sources/AppIcon.png --out "$ICONSET_DIR/icon_512x512.png" > /dev/null 2>&1
 sips -z 1024 1024 Sources/AppIcon.png --out "$ICONSET_DIR/icon_512x512@2x.png" > /dev/null 2>&1
-iconutil -c icns "$ICONSET_DIR" -o "Time Zones.app/Contents/Resources/AppIcon.icns"
+iconutil -c icns "$ICONSET_DIR" -o "Meridian.app/Contents/Resources/AppIcon.icns"
 rm -rf "$(dirname "$ICONSET_DIR")"
 
-rm TimeZones
+rm Meridian
 
-echo "Built successfully: Time Zones.app"
-echo "Run with: open 'Time Zones.app'"
+echo "Built successfully: Meridian.app"
+echo "Run with: open 'Meridian.app'"

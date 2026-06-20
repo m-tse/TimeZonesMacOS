@@ -1,4 +1,4 @@
-# TimeZonesMacOS
+# Meridian
 
 A lightweight macOS menubar app for viewing multiple timezones at a glance. Inspired by [time.fyi/timezones](https://time.fyi/timezones).
 
@@ -50,7 +50,7 @@ Requires macOS 13.0+, Apple Silicon (arm64), and Xcode command line tools.
 
 ```bash
 ./build.sh
-open 'Time Zones.app'
+open 'Meridian.app'
 ```
 
 A globe icon will appear in your menubar. Click it to open the timezone panel.
