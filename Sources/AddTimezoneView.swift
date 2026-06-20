@@ -161,7 +161,11 @@ struct AddTimezoneView: View {
                     ForEach(displayedTimezones, id: \.0) { (id, label) in
                         let alreadyAdded = store.timezones.contains { $0.identifier == id }
                         Button {
-                            if !alreadyAdded {
+                            if alreadyAdded {
+                                if let tz = store.timezones.first(where: { $0.identifier == id }) {
+                                    store.remove(tz)
+                                }
+                            } else {
                                 store.add(WorldTimezone(identifier: id, label: label))
                             }
                         } label: {
